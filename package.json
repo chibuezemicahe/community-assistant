@@ -1,0 +1,30 @@
+{
+  "name": "community-assistant",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "Micah Erumaka",
+  "license": "ISC",
+  "description": "A Telegram bot for the invest with Micah community",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
+    "community-assistant": "file:",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "node-cron": "^3.0.3",
+    "node-telegram-bot-api": "^0.66.0",
+    "npm": "^11.0.0",
+    "puppeteer": "^24.1.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "rss-parser": "^3.13.0",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  }
+}
