@@ -1,33 +1,44 @@
 const express = require('express');
-const rateLimiting = require('express-rate-limit');
 const app = express();
-const dotenv = require('dotenv');
 const cron = require('node-cron');
+const serverless = require("serverless-http");
+const rateLimiting = require('express-rate-limit');
+const dotenv = require('dotenv');
 const newsScraping = require('./tasks/newsScraping');
 const csMovement = require('./tasks/csMovement');
 const telegramBot = require('node-telegram-bot-api');
 const logger = require('./log');
-
 const PORT = process.env.PORT || 3000;
 
+
+// Middleware and routes
+app.use(express.json());
 dotenv.config();
+
+app.use(rateLimiting({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Here I limit each IP to 100 requests
+    message: 'You have exceeded the 100 requests in 15 minutes limit!',
+}));
 
 ['TGBOTTOKEN', 'STOREDCHATID'].forEach((key) => {
     if (!process.env[key]) {
         logger.error(`Environment variable ${key} is missing.`);
-        process.exit(1);
+        throw new Error(`Missing environment variable: ${key}`);
     }
 });
 
-app.use(rateLimiting({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Here I limit each IP to 100 requests per windowMs
-    message: 'You have exceeded the 100 requests in 15 minutes limit!',
-}));
 
 
+const bot = new telegramBot(process.env.TGBOTTOKEN);
 
-const bot = new telegramBot(process.env.TGBOTTOKEN,{polling:true});
+// Telegram Bot webhook setup
+bot.setWebHook(`${process.env.BASE_URL}/api/webhook`);
+app.post('/api/webhook', (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+  });
+
 const storedChatId = process.env.STOREDCHATID;
 
 const userRateLimits = new Map(); // Track user requests and timestamps
@@ -197,13 +208,20 @@ ${marketSummary.stockPicks.map(stock => `- ${stock.Symbol}: ₦${stock.ClosePric
 };
 
 // Schedule the market summary to be sent every day at 6 PM WAT
-cron.schedule('0 18 * * *', async () => {
+// cron.schedule('0 18 * * *', async () => {
+//     sendMarketSummary();
+// });
+
+cron.schedule('*/2 * * * *', async () => {
     sendMarketSummary();
 });
 
-
 // Schedule the scrapeNews function to run every morning at 7 AM WAT
-cron.schedule('0 6 * * *', scrapeNews);
+// cron.schedule('0 6 * * *', scrapeNews);
+
+cron.schedule('*/5 * * * *', async () => {
+    scrapeNews();
+});
 
 process.on('uncaughtException', (err) => {
     logger.error(`Uncaught Exception: ${err.message}`, { stack: err.stack });
@@ -214,7 +232,9 @@ process.on('unhandledRejection', (reason, promise) => {
     logger.error('Unhandled Rejection:', { reason, promise });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on port 3000`);
-});
-
+if (process.env.NODE_ENV === 'development') {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
+module.exports = serverless(app);
