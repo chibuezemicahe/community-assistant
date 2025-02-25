@@ -39,6 +39,9 @@ app.post('/api/webhook', (req, res) => {
     res.sendStatus(200);
   });
 
+  app.get('/ping', (req, res) => {
+    res.send('Bot is live!');
+});
 const storedChatId = process.env.STOREDCHATID;
 
 const userRateLimits = new Map(); // Track user requests and timestamps
