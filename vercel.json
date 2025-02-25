@@ -3,13 +3,5 @@
     "builds":[{
         "src":"index.js",
         "usedest":"vercel@node"
-    }],
-    "routes":[{
-        "src":"/api/webhook",
-         "dest": "index.js"
-    },
-    {
-        "src": "/(.*)",
-        "dest": "/index.js"
-      }]
+    }]
 }
