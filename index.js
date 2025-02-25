@@ -52,10 +52,10 @@ bot.on('new_chat_members',(msg)=>{
     // console.log(storedChatId);
     msg.new_chat_members.forEach(user=>{
         if(!user.is_bot){
-            logger.info(`Welcoming user: ${userName}`);
             const userName = user.first_name;
+            logger.info(`Welcoming user: ${userName}`);
             setTimeout(() => { bot.sendMessage( chatId,`Hello <b>${userName}</b>, Welcome to the Invest with Micah community!\n \nI am <b>Cucuh</b>, Mr. Micah's Assistant, and still under development.\n \nFeel free to ask any questions you might have about investing. Like-minded members in the community will be happy to help.\n \nIf you're interested in learning how to research and find good stocks to buy, check out Mr. Micah's course on investing:\n \n <a href="https://selar.co/unconventionalinvestor">Click here for the course</a>.`,{ parse_mode: 'HTML'});
-        },3000);
+        },10000);
         }
     })
 });
@@ -89,9 +89,9 @@ bot.on('message', async (msg) => {
     
         const adminUsername = "Micaherums"; // Admin's username to check against mentions
         
-        if (typeof msg.text !== 'string') {
+        if (!msgText && !msg.new_chat_members && !msg.left_chat_member && !msg.pinned_message) {
             logger.info(`Invalid Message received from ${userName} in chat ID ${chatId}`);
-            return bot.sendMessage(msg.chat.id, "Invalid Message. I only respond to text based messages.");
+            return bot.sendMessage(chatId, "Invalid Message. I only respond to text-based messages.");
         }
         // First, check if the message is a reply to the bot
         if (msg.reply_to_message && msg.reply_to_message.from.id === botInfo.id) {
@@ -208,18 +208,13 @@ ${marketSummary.stockPicks.map(stock => `- ${stock.Symbol}: ₦${stock.ClosePric
 };
 
 // Schedule the market summary to be sent every day at 6 PM WAT
-// cron.schedule('0 18 * * *', async () => {
-//     sendMarketSummary();
-// });
 
-cron.schedule('*/2 * * * *', async () => {
+cron.schedule('0 18 * * *', async () => {
     sendMarketSummary();
 });
 
 // Schedule the scrapeNews function to run every morning at 7 AM WAT
-// cron.schedule('0 6 * * *', scrapeNews);
-
-cron.schedule('*/5 * * * *', async () => {
+cron.schedule('0 8 * * *', async () => {
     scrapeNews();
 });
 
