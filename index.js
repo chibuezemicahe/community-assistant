@@ -10,7 +10,7 @@ const telegramBot = require('node-telegram-bot-api');
 const logger = require('./log');
 const PORT = process.env.PORT || 3000;
 
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 
 // Middleware and routes
 app.use(express.json());
@@ -20,6 +20,9 @@ app.use(rateLimiting({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // Here I limit each IP to 100 requests
     message: 'You have exceeded the 100 requests in 15 minutes limit!',
+    keyGenerator: (req) => {
+        return req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown-ip';
+    }
 }));
 
 ['TGBOTTOKEN', 'STOREDCHATID'].forEach((key) => {
