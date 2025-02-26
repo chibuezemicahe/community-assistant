@@ -10,6 +10,7 @@ const telegramBot = require('node-telegram-bot-api');
 const logger = require('./log');
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1);
 
 // Middleware and routes
 app.use(express.json());
