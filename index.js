@@ -39,8 +39,8 @@ const bot = new telegramBot(process.env.TGBOTTOKEN);
 // Telegram Bot webhook setup
 bot.setWebHook(`${process.env.BASE_URL}/api/webhook`);
 app.post('/api/webhook', (req, res) => {
-    bot.processUpdate(req.body);
     res.sendStatus(200);
+    bot.processUpdate(req.body);
   });
 
   app.get('/ping', (req, res) => {
