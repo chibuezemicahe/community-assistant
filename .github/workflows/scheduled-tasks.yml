@@ -1,0 +1,37 @@
+name: Scheduled Tasks
+
+on:
+  schedule:
+    - cron: '0 19 * * *'  # 6 PM WAT (17:00 UTC) for market summary
+    - cron: '0 6 * * *'   # 7 AM WAT (07:00 UTC) for news scraping
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
+
+jobs:
+  run-scheduled-tasks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Market Summary
+        if: github.event.schedule == '0 17 * * *'
+        env:
+          TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}
+          STOREDCHATID: ${{ secrets.STOREDCHATID }}
+        run: node scripts/marketSummary.js
+
+      - name: Run News Scraping
+        if: github.event.schedule == '0 7 * * *'
+        env:
+          TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}
+          STOREDCHATID: ${{ secrets.STOREDCHATID }}
+        run: node scripts/newsScraping.js
