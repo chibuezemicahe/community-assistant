@@ -8,6 +8,7 @@ const csMovement = require('./tasks/csMovement');
 const telegramBot = require('node-telegram-bot-api');
 const logger = require('./log');
 const PORT = process.env.PORT || 3000;
+const axios = require('axios');
 
 app.set('trust proxy', true);
 
@@ -42,12 +43,14 @@ app.post('/api/webhook', (req, res) => {
     bot.processUpdate(req.body);
   });
 
-  setInterval(()=>{
-    app.get('/ping', (req, res) => {
-        res.send('Bot is live!');
-    });    
-  },5000)
- 
+  setInterval(async () => {
+    try {
+        const response = await axios.get(`${process.env.BASE_URL}/ping`);
+        console.log(`Ping successful: ${response.status}`);
+    } catch (error) {
+        console.error(`Ping failed: ${error.message}`);
+    }
+}, 5 * 60 * 1000); // Every 5 minutes
 
   
 const storedChatId = process.env.STOREDCHATID;
@@ -138,96 +141,6 @@ setInterval(() => {
         }
     }
 }, RATE_LIMIT_WINDOW);
-
-// const scrapeNews = async () => {
-//     logger.info('Starting to Scrape news...');
-
-//     try{
-
-//         const news = await newsScraping.fetchRss();
-
-//         news.forEach((item, index) => {
-//             const category = item.link.includes('nairametrics') ? 'Finance' : 'Crypto';
-//             const message = `
-//     <b>Today's Headlines in Nigeria Around ${category}:</b>
-    
-//     <b>${item.title}</b>
-    
-//     📰 <b>ARTICLE SNIPPET:</b>
-//     ${item.contentSnippet}
-    
-//     🔗 <b>Link:</b> 
-//     <a href="${item.link}">${item.link}</a>
-//             `;
-//             // Add a delay of 3 minutes between each news item
-//             setTimeout(() => {
-//                 bot.sendMessage(storedChatId, message, { parse_mode: 'HTML' });
-//             }, index * 3 * 60 * 1000); // index * 5 minutes (in ms)
-//         });
-//     }
-//     catch(error){
-//         logger.error(`Error scraping news:${error.message}`, { stack: error.stack });
-//     }
-
-// };
-
-
-// // Function to fetch market data and send a summary
-// const sendMarketSummary = async () => {
-//     logger.info('Sending market summary...');
-//     try {
-//         const marketSummary = await csMovement.fetchCsuRate();
-
-//         if(!marketSummary){
-//             return bot.sendMessage(storedChatId, 'Sorry, I could not fetch the market data at the moment. Will try again later.');
-//         }
-//         // Craft the message
-//         const message = `
-// <b>📊 Market Summary for Today:</b>
-
-// <b>💹 Crypto Prices:</b>
-// - Bitcoin: $${marketSummary.crypto.bitcoin.usd.toLocaleString()} (${marketSummary.crypto.bitcoin.usd_24h_change.toFixed(2)}%)
-// - Solana: $${marketSummary.crypto.solana.usd.toLocaleString()} (${marketSummary.crypto.solana.usd_24h_change.toFixed(2)}%)
-
-// <b>💱 Black Market Naira to Dollar Rate:</b>
-// - Buy: ₦${marketSummary.nairatoDollar[0].price_buy.toLocaleString()}
-// - Sell: ₦${marketSummary.nairatoDollar[0].price_sell.toLocaleString()}
-
-// <b>📈  Top Advancers:</b>
-// ${marketSummary.stocks.topAdvancers.map(stock => `- ${stock.SYMBOL}: ${stock.PERCENTAGE_CHANGE}%`).join('\n')}
-
-// <b>📉 Top Losers:</b>
-// ${marketSummary.stocks.topLosers.map(stock => `- ${stock.SYMBOL}: ${stock.PERCENTAGE_CHANGE}%`).join('\n')}
-
-// <b>💰 Top Trades: By Value Traded </b>
-// ${marketSummary.stocks.topTrades.map(stock => `- ${stock.Symbol}: ₦${stock.value.toLocaleString()}`).join('\n')}
-
-// <b>⭐ Micah's 2025 Stock Picks:</b>
-// ${marketSummary.stockPicks.map(stock => `- ${stock.Symbol}: ₦${stock.ClosePrice} (${stock.PercChange}%)`).join('\n')}
-
-// <b>⭐ Remember to Invest Wisely, Ndewo! </b>
-// `;
-
-//         // Send the message to the stored chat ID
-
-//         console.log(message);
-//         bot.sendMessage(storedChatId, message, { parse_mode: 'HTML' });
-//     } catch (error) {
-//         logger.error(`Error sending market summary: ${error.message}`, { stack: error.stack });
-//         // console.error('Error sending market summary:', error);
-//     }
-// };
-
-// Schedule the market summary to be sent every day at 6 PM WAT
-
-// cron.schedule('0 18 * * *', async () => {
-//     sendMarketSummary();
-// });
-
-// Schedule the scrapeNews function to run every morning at 7 AM WAT
-cron.schedule('0 8 * * *', async () => {
-    scrapeNews();
-});
 
 process.on('uncaughtException', (err) => {
     logger.error(`Uncaught Exception: ${err.message}`, { stack: err.stack });
