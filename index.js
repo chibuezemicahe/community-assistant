@@ -1,6 +1,6 @@
 const express = require('express');
 const cron = require('node-cron');
-const serverless = require("serverless-http");
+const app = express();
 const rateLimiting = require('express-rate-limit');
 const dotenv = require('dotenv');
 const newsScraping = require('./tasks/newsScraping');
@@ -42,9 +42,14 @@ app.post('/api/webhook', (req, res) => {
     bot.processUpdate(req.body);
   });
 
-  app.get('/ping', (req, res) => {
-    res.send('Bot is live!');
-});
+  setInterval(()=>{
+    app.get('/ping', (req, res) => {
+        res.send('Bot is live!');
+    });    
+  },5000)
+ 
+
+  
 const storedChatId = process.env.STOREDCHATID;
 
 const userRateLimits = new Map(); // Track user requests and timestamps
@@ -233,11 +238,7 @@ process.on('unhandledRejection', (reason, promise) => {
     logger.error('Unhandled Rejection:', { reason, promise });
 });
 
-if (process.env.NODE_ENV === 'development') {
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
-}
+
 app.listen(PORT,()=>{
 console.log(`listening to ${PORT}` )
 })
