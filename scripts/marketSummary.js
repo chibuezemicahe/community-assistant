@@ -7,11 +7,13 @@ const bot = new telegramBot(process.env.TGBOTTOKEN);
 const storedChatId = process.env.STOREDCHATID;
 
 const sendMarketSummary = async () => {
-    logger.info('Sending market summary...');
+    logger.info('Starting market summary...');
     try {
         const marketSummary = await csMovement.fetchCsuRate();
         if (!marketSummary) {
-            return bot.sendMessage(storedChatId, 'Sorry, I could not fetch the market data at the moment.');
+            logger.error('Failed to fetch market data');
+            await bot.sendMessage(storedChatId, 'Sorry, I could not fetch the market data at the moment.');
+            process.exit(1);
         }
 
         const message = `
@@ -39,11 +41,19 @@ ${marketSummary.stockPicks.map(stock => `- ${stock.Symbol}: ₦${stock.ClosePric
 
 <b>⭐ Remember to Invest Wisely, Ndewo! </b>
 `;
-        bot.sendMessage(storedChatId, message, { parse_mode: 'HTML' });
-
+        await bot.sendMessage(storedChatId, message, { parse_mode: 'HTML' });
+        logger.info('Market summary sent successfully');
+        process.exit(0);
     } catch (error) {
         logger.error(`Error sending market summary: ${error.message}`, { stack: error.stack });
+        process.exit(1);
     }
 };
+
+// Handle process errors
+process.on('unhandledRejection', (error) => {
+    logger.error('Unhandled rejection:', error);
+    process.exit(1);
+});
 
 sendMarketSummary();

@@ -2,8 +2,8 @@ name: Scheduled Tasks
 
 on:
   schedule:
-    - cron: '0 19 * * *'  # 6 PM WAT (17:00 UTC) for market summary
-    - cron: '0 6 * * *'   # 7 AM WAT (07:00 UTC) for news scraping
+    - cron: '*/5 * * * *'  # Every 5 minutes for market summary
+    - cron: '*/10 * * * *' # Every 10 minutes for news scraping
   workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
 
 jobs:
@@ -23,14 +23,14 @@ jobs:
         run: npm install
 
       - name: Run Market Summary
-        if: github.event.schedule == '0 17 * * *'
+        if: github.event.schedule == '*/5 * * * *'
         env:
           TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}
           STOREDCHATID: ${{ secrets.STOREDCHATID }}
         run: node scripts/marketSummary.js
 
       - name: Run News Scraping
-        if: github.event.schedule == '0 7 * * *'
+        if: github.event.schedule == '*/10 * * * *'
         env:
           TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}
           STOREDCHATID: ${{ secrets.STOREDCHATID }}

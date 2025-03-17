@@ -50,7 +50,7 @@ app.post('/api/webhook', (req, res) => {
     } catch (error) {
         console.error(`Ping failed: ${error.message}`);
     }
-}, 5 * 60 * 1000); // Every 5 minutes
+}, 1 * 60 * 1000); // Every 5 minutes
 
   
 const storedChatId = process.env.STOREDCHATID;
