@@ -29,20 +29,22 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run Market Summary (Test with Hardcoded Keys)
+      - name: Run Market Summary
         if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 19 * * *'
         env:
-          TGBOTTOKEN: "8059953551:AAGeSksNaYquWwKuMxcpkiI-TZ-hu2R3dAc"
-          STOREDCHATID: "-1001838302805"
+          TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}
+          STOREDCHATID: ${{ secrets.STOREDCHATID }}
         run: |
           echo "Running Market Summary..."
+          echo "Using chat ID: ${{ secrets.STOREDCHATID }}"
           node scripts/marketSummary.js
 
-      - name: Run News Scraping (Test with Hardcoded Keys)
+      - name: Run News Scraping
         if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 7 * * *'
         env:
-          TGBOTTOKEN: "8059953551:AAGeSksNaYquWwKuMxcpkiI-TZ-hu2R3dAc"
-          STOREDCHATID: "-1001838302805"
+          TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}
+          STOREDCHATID: ${{ secrets.STOREDCHATID }}
         run: |
           echo "Running News Scraping..."
+          echo "Using chat ID: ${{ secrets.STOREDCHATID }}"
           node scripts/newsScraping.js
