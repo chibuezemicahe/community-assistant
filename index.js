@@ -25,6 +25,14 @@ app.use(rateLimiting({
     }
 }));
 
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'healthy',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
+    });
+});
+
 ['TGBOTTOKEN', 'STOREDCHATID'].forEach((key) => {
     if (!process.env[key]) {
         logger.error(`Environment variable ${key} is missing.`);
@@ -50,7 +58,7 @@ app.post('/api/webhook', (req, res) => {
     } catch (error) {
         console.error(`Ping failed: ${error.message}`);
     }
-}, 1 * 60 * 1000); // Every 5 minutes
+}, 8 * 60 * 1000); // Every 5 minutes
 
   
 const storedChatId = process.env.STOREDCHATID;
