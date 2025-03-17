@@ -13,12 +13,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
-      - name: Check Environment Variables
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 19 * * *'
-        run: |
-          echo "TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}"
-          echo "STOREDCHATID: ${{ secrets.STOREDCHATID }}"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -35,20 +29,20 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run Market Summary
+      - name: Run Market Summary (Test with Hardcoded Keys)
         if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 19 * * *'
         env:
-          TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}
-          STOREDCHATID: ${{ secrets.STOREDCHATID }}
+          TGBOTTOKEN: "8059953551:AAGeSksNaYquWwKuMxcpkiI-TZ-hu2R3dAc"
+          STOREDCHATID: "-1001838302805"
         run: |
           echo "Running Market Summary..."
           node scripts/marketSummary.js
 
-      - name: Run News Scraping
+      - name: Run News Scraping (Test with Hardcoded Keys)
         if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 7 * * *'
         env:
-          TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}
-          STOREDCHATID: ${{ secrets.STOREDCHATID }}
+          TGBOTTOKEN: "8059953551:AAGeSksNaYquWwKuMxcpkiI-TZ-hu2R3dAc"
+          STOREDCHATID: "-1001838302805"
         run: |
           echo "Running News Scraping..."
           node scripts/newsScraping.js

@@ -1,10 +1,7 @@
 const express = require('express');
-const cron = require('node-cron');
 const app = express();
 const rateLimiting = require('express-rate-limit');
 const dotenv = require('dotenv');
-const newsScraping = require('./tasks/newsScraping');
-const csMovement = require('./tasks/csMovement');
 const telegramBot = require('node-telegram-bot-api');
 const logger = require('./log');
 const PORT = process.env.PORT || 3000;
