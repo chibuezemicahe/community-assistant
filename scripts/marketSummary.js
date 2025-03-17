@@ -8,6 +8,7 @@ const storedChatId = process.env.STOREDCHATID;
 
 const sendMarketSummary = async () => {
     logger.info('Starting market summary...');
+    logger.info(`Using chat ID: ${storedChatId}`);
     try {
         const marketSummary = await csMovement.fetchCsuRate();
         if (!marketSummary) {
