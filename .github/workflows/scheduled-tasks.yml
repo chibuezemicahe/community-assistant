@@ -2,9 +2,9 @@ name: Scheduled Tasks
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Every 5 minutes for market summary
-    - cron: '*/10 * * * *' # Every 10 minutes for news scraping
-  workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
+    - cron: '*/5 * * * *'
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
 
 jobs:
   run-scheduled-tasks:
@@ -19,19 +19,30 @@ jobs:
         with:
           node-version: 18
 
+      - name: Debug Info
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Schedule: ${{ github.event.schedule }}"
+          echo "Node version: $(node -v)"
+          echo "NPM version: $(npm -v)"
+
       - name: Install dependencies
         run: npm install
 
       - name: Run Market Summary
-        if: github.event.schedule == '*/5 * * * *'
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '*/5 * * * *'
         env:
           TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}
           STOREDCHATID: ${{ secrets.STOREDCHATID }}
-        run: node scripts/marketSummary.js
+        run: |
+          echo "Running Market Summary..."
+          node scripts/marketSummary.js
 
       - name: Run News Scraping
-        if: github.event.schedule == '*/10 * * * *'
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '*/10 * * * *'
         env:
           TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}
           STOREDCHATID: ${{ secrets.STOREDCHATID }}
-        run: node scripts/newsScraping.js
+        run: |
+          echo "Running News Scraping..."
+          node scripts/newsScraping.js
