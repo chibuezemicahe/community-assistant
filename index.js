@@ -53,7 +53,7 @@ app.post('/api/webhook', (req, res) => {
 
   setInterval(async () => {
     try {
-        const response = await axios.get(`${process.env.BASE_URL}/ping`);
+        const response = await axios.get(`${process.env.BASE_URL}/health`);
         console.log(`Ping successful: ${response.status}`);
     } catch (error) {
         console.error(`Ping failed: ${error.message}`);
