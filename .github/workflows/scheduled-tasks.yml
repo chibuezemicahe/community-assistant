@@ -13,6 +13,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      
+      - name: Check Environment Variables
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 19 * * *'
+        run: |
+          echo "TGBOTTOKEN: ${{ secrets.TGBOTTOKEN }}"
+          echo "STOREDCHATID: ${{ secrets.STOREDCHATID }}"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
